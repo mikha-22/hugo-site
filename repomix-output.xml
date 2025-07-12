@@ -1,0 +1,401 @@
+This file is a merged representation of the entire codebase, combined into a single document by Repomix.
+
+<file_summary>
+This section contains a summary of this file.
+
+<purpose>
+This file contains a packed representation of the entire repository's contents.
+It is designed to be easily consumable by AI systems for analysis, code review,
+or other automated processes.
+</purpose>
+
+<file_format>
+The content is organized as follows:
+1. This summary section
+2. Repository information
+3. Directory structure
+4. Repository files (if enabled)
+4. Repository files, each consisting of:
+  - File path as an attribute
+  - Full contents of the file
+</file_format>
+
+<usage_guidelines>
+- This file should be treated as read-only. Any changes should be made to the
+  original repository files, not this packed version.
+- When processing this file, use the file path to distinguish
+  between different files in the repository.
+- Be aware that this file may contain sensitive information. Handle it with
+  the same level of security as you would the original repository.
+</usage_guidelines>
+
+<notes>
+- Some files may have been excluded based on .gitignore rules and Repomix's configuration
+- Binary files are not included in this packed representation. Please refer to the Repository Structure section for a complete list of file paths, including binary files
+- Files matching patterns in .gitignore are excluded
+- Files matching default ignore patterns are excluded
+- Files are sorted by Git change count (files with more changes are at the bottom)
+</notes>
+
+<additional_info>
+
+</additional_info>
+
+</file_summary>
+
+<directory_structure>
+.github/
+  workflows/
+    deploy.yaml
+content/
+  _index.md
+  about.md
+.gitignore
+.gitmodules
+config.yaml
+README.md
+</directory_structure>
+
+<files>
+This section contains the contents of the repository's files.
+
+<file path=".github/workflows/deploy.yaml">
+name: Deploy Hugo Site to MinIO
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Allow workflow to be triggered manually
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Hugo repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive  # For Hugo themes as submodules
+        fetch-depth: 0        # Fetch full history for .GitInfo and .Lastmod
+
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v3
+      with:
+        hugo-version: 'latest'
+        extended: true  # Use Hugo extended version for SCSS support
+
+    - name: Build Hugo site
+      run: |
+        hugo --minify --gc --cleanDestinationDir
+        
+        # Verify build output
+        echo "Build completed. Files in public/:"
+        ls -la public/
+        
+        # Ensure index.html exists
+        if [ ! -f public/index.html ]; then
+          echo "ERROR: index.html not found!"
+          exit 1
+        fi
+
+    - name: Setup MinIO Client
+      run: |
+        # Download and install MinIO client
+        wget https://dl.min.io/client/mc/release/linux-amd64/mc
+        chmod +x mc
+        sudo mv mc /usr/local/bin/
+        
+        # Configure MinIO client
+        mc alias set minio https://minio-api.milenika.dev ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }}
+        
+        # Test connection
+        mc ls minio/
+
+    - name: Sync to MinIO bucket
+      run: |
+        # Remove old files and sync new ones
+        mc rm --recursive --force minio/hugo-static/ || echo "Bucket empty or doesn't exist"
+        
+        # Upload new files with proper content types
+        mc cp --recursive public/ minio/hugo-static/
+        
+        # Set bucket policy for public read access
+        mc anonymous set download minio/hugo-static
+        
+        # Verify upload
+        echo "Files uploaded to MinIO:"
+        mc ls minio/hugo-static/
+
+    - name: Purge Cloudflare cache (optional)
+      if: success()
+      run: |
+        # Optional: Purge Cloudflare cache for faster updates
+        curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+        -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        --data '{"purge_everything":true}' || echo "Cloudflare cache purge skipped"
+</file>
+
+<file path="content/_index.md">
+---
+title: "Welcome to Mikha's Homelab"
+date: 2025-01-15
+draft: false
+---
+
+# Welcome to My Homelab Journey
+
+This site is powered by:
+
+- **Hugo** - Static site generator
+- **MinIO** - S3-compatible object storage
+- **NGINX** - Reverse proxy and caching
+- **ArgoCD** - GitOps continuous delivery
+- **Kubernetes** - Container orchestration
+
+## Current Setup
+
+My homelab runs on Kubernetes with a complete LGTM observability stack:
+
+- 📊 **Prometheus** - Metrics collection
+- 📈 **Grafana** - Visualization dashboards  
+- 📝 **Loki** - Log aggregation
+- 🔍 **Tempo** - Distributed tracing
+
+Visit my [monitoring dashboard](https://grafana.milenika.dev) to see it in action!
+
+## Latest Posts
+
+Check out my latest posts about homelab adventures, Kubernetes tips, and GitOps workflows.
+</file>
+
+<file path="content/about.md">
+---
+title: "About Me"
+date: 2025-01-15
+draft: false
+---
+
+# About Mikha
+
+I'm a DevOps engineer passionate about:
+- Kubernetes and container orchestration
+- GitOps and infrastructure as code
+- Homelab automation
+- Open source technologies
+
+## My Homelab
+
+Current setup includes:
+- Kubernetes cluster
+- LGTM observability stack
+- GitOps with ArgoCD
+- Static site hosting with Hugo + MinIO
+
+Feel free to reach out if you want to chat about homelab projects!
+</file>
+
+<file path=".gitignore">
+# Hugo build output
+public/
+resources/_gen/
+.hugo_build.lock
+
+# Hugo development
+.DS_Store
+Thumbs.db
+
+# Hugo themes (if using git submodules, you might want to track these)
+# themes/
+
+# Hugo cache
+/.cache/
+
+# Node modules (if using npm/yarn for theme development)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Hugo server port file
+.hugo_server.port
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+
+# Archive files
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# Hugo generated files
+hugo_stats.json
+
+# Local development
+/local/
+/tmp/
+/temp/
+
+# Cloud deployment configs (if you have any local configs)
+.firebase/
+.vercel/
+.netlify/
+
+# MinIO client config (if you test locally)
+.mc/
+
+# Go modules (if extending Hugo)
+go.mod
+go.sum
+
+# Sass cache
+.sass-cache/
+
+# Content drafts (optional - remove if you want to track drafts)
+# content/**/*draft*.md
+</file>
+
+<file path=".gitmodules">
+[submodule "themes/PaperMod"]
+	path = themes/PaperMod
+	url = https://github.com/adityatelange/hugo-PaperMod.git
+</file>
+
+<file path="config.yaml">
+baseURL: 'https://hugo.milenika.dev'
+languageCode: 'en-us'
+title: "Mikha's Homelab Blog"
+theme: 'PaperMod'
+
+# Build configuration
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+
+# Output settings
+publishDir: 'public'
+
+# Menu configuration
+menu:
+  main:
+    - name: "Home"
+      url: "/"
+      weight: 10
+    - name: "About"
+      url: "/about/"
+      weight: 20
+    - name: "Posts"
+      url: "/posts/"
+      weight: 30
+
+# PaperMod specific params
+params:
+  author: "Mikha"
+  description: "A homelab enthusiast's journey with Kubernetes and GitOps"
+  
+  # PaperMod theme settings
+  defaultTheme: auto # dark, light
+  disableThemeToggle: false
+  
+  ShowReadingTime: true
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  ShowRssButtonInSectionTermList: true
+  UseHugoToc: true
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  comments: false
+  hidemeta: false
+  hideSummary: false
+  showtoc: false
+  tocopen: false
+
+  # Home page settings
+  homeInfoParams:
+    Title: "Welcome to Mikha's Homelab 🏠"
+    Content: >
+      A DevOps engineer's journey with Kubernetes, GitOps, and homelab automation.
+      Currently running a complete LGTM observability stack with Hugo static site hosting.
+
+  # Social icons
+  socialIcons:
+    - name: github
+      url: "https://github.com/mikha-22"
+    - name: linkedin
+      url: "https://linkedin.com/in/your-profile"
+    - name: rss
+      url: "/index.xml"
+
+  # Search
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+
+# Markup settings
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    style: github-dark
+    lineNos: true
+    codeFences: true
+    guessSyntax: true
+
+# Enable search
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # is necessary for search
+</file>
+
+<file path="README.md">
+# hugo-site
+</file>
+
+</files>

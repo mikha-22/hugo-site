@@ -1,0 +1,79 @@
+name: Deploy Hugo Site to MinIO
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# Allow workflow to be triggered manually
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - name: Checkout Hugo repository
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive  # For Hugo themes as submodules
+        fetch-depth: 0        # Fetch full history for .GitInfo and .Lastmod
+
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v3
+      with:
+        hugo-version: 'latest'
+        extended: true  # Use Hugo extended version for SCSS support
+
+    - name: Build Hugo site
+      run: |
+        hugo --minify --gc --cleanDestinationDir
+        
+        # Verify build output
+        echo "Build completed. Files in public/:"
+        ls -la public/
+        
+        # Ensure index.html exists
+        if [ ! -f public/index.html ]; then
+          echo "ERROR: index.html not found!"
+          exit 1
+        fi
+
+    - name: Setup MinIO Client
+      run: |
+        # Download and install MinIO client
+        wget https://dl.min.io/client/mc/release/linux-amd64/mc
+        chmod +x mc
+        sudo mv mc /usr/local/bin/
+        
+        # Configure MinIO client
+        mc alias set minio https://minio-api.milenika.dev ${{ secrets.MINIO_ACCESS_KEY }} ${{ secrets.MINIO_SECRET_KEY }}
+        
+        # Test connection
+        mc ls minio/
+
+    - name: Sync to MinIO bucket
+      run: |
+        # Remove old files and sync new ones
+        mc rm --recursive --force minio/hugo-static/ || echo "Bucket empty or doesn't exist"
+        
+        # Upload new files with proper content types
+        mc cp --recursive public/ minio/hugo-static/
+        
+        # Set bucket policy for public read access
+        mc anonymous set download minio/hugo-static
+        
+        # Verify upload
+        echo "Files uploaded to MinIO:"
+        mc ls minio/hugo-static/
+
+    - name: Purge Cloudflare cache (optional)
+      if: success()
+      run: |
+        # Optional: Purge Cloudflare cache for faster updates
+        curl -X POST "https://api.cloudflare.com/client/v4/zones/${{ secrets.CLOUDFLARE_ZONE_ID }}/purge_cache" \
+        -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        --data '{"purge_everything":true}' || echo "Cloudflare cache purge skipped"

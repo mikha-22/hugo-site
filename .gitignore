@@ -1,0 +1,89 @@
+# Hugo build output
+public/
+resources/_gen/
+.hugo_build.lock
+
+# Hugo development
+.DS_Store
+Thumbs.db
+
+# Hugo themes (if using git submodules, you might want to track these)
+# themes/
+
+# Hugo cache
+/.cache/
+
+# Node modules (if using npm/yarn for theme development)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.tmp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Hugo server port file
+.hugo_server.port
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Log files
+*.log
+logs/
+
+# Backup files
+*.bak
+*.backup
+
+# Archive files
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# Hugo generated files
+hugo_stats.json
+
+# Local development
+/local/
+/tmp/
+/temp/
+
+# Cloud deployment configs (if you have any local configs)
+.firebase/
+.vercel/
+.netlify/
+
+# MinIO client config (if you test locally)
+.mc/
+
+# Go modules (if extending Hugo)
+go.mod
+go.sum
+
+# Sass cache
+.sass-cache/
+
+# Content drafts (optional - remove if you want to track drafts)
+# content/**/*draft*.md

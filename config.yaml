@@ -1,0 +1,94 @@
+baseURL: 'https://hugo.milenika.dev'
+languageCode: 'en-us'
+title: "Mikha's Homelab Blog"
+theme: 'PaperMod'
+
+# Build configuration
+buildDrafts: false
+buildFuture: false
+buildExpired: false
+
+# Output settings
+publishDir: 'public'
+
+# Menu configuration
+menu:
+  main:
+    - name: "Home"
+      url: "/"
+      weight: 10
+    - name: "About"
+      url: "/about/"
+      weight: 20
+    - name: "Posts"
+      url: "/posts/"
+      weight: 30
+
+# PaperMod specific params
+params:
+  author: "Mikha"
+  description: "A homelab enthusiast's journey with Kubernetes and GitOps"
+  
+  # PaperMod theme settings
+  defaultTheme: auto # dark, light
+  disableThemeToggle: false
+  
+  ShowReadingTime: true
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  ShowRssButtonInSectionTermList: true
+  UseHugoToc: true
+  disableSpecial1stPost: false
+  disableScrollToTop: false
+  comments: false
+  hidemeta: false
+  hideSummary: false
+  showtoc: false
+  tocopen: false
+
+  # Home page settings
+  homeInfoParams:
+    Title: "Welcome to Mikha's Homelab 🏠"
+    Content: >
+      A DevOps engineer's journey with Kubernetes, GitOps, and homelab automation.
+      Currently running a complete LGTM observability stack with Hugo static site hosting.
+
+  # Social icons
+  socialIcons:
+    - name: github
+      url: "https://github.com/mikha-22"
+    - name: linkedin
+      url: "https://linkedin.com/in/your-profile"
+    - name: rss
+      url: "/index.xml"
+
+  # Search
+  fuseOpts:
+    isCaseSensitive: false
+    shouldSort: true
+    location: 0
+    distance: 1000
+    threshold: 0.4
+    minMatchCharLength: 0
+    keys: ["title", "permalink", "summary", "content"]
+
+# Markup settings
+markup:
+  goldmark:
+    renderer:
+      unsafe: true
+  highlight:
+    style: github-dark
+    lineNos: true
+    codeFences: true
+    guessSyntax: true
+
+# Enable search
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON # is necessary for search
