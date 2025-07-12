@@ -21,6 +21,12 @@ jobs:
         submodules: recursive  # For Hugo themes as submodules
         fetch-depth: 0        # Fetch full history for .GitInfo and .Lastmod
 
+    - name: Initialize and update submodules
+      run: |
+        git submodule update --init --recursive
+        ls -la themes/
+        ls -la themes/PaperMod/ || echo "PaperMod directory not found"
+
     - name: Setup Hugo
       uses: peaceiris/actions-hugo@v3
       with:
