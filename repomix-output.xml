@@ -302,6 +302,10 @@ jobs:
         --data '{"purge_everything":true}' || echo "Cloudflare cache purge skipped"
 </file>
 
+<file path="README.md">
+# hugo-site
+</file>
+
 <file path=".gitignore">
 # Hugo build output
 themes
@@ -393,10 +397,6 @@ go.sum
 
 # Content drafts (optional - remove if you want to track drafts)
 # content/**/*draft*.md
-</file>
-
-<file path="README.md">
-# hugo-site
 </file>
 
 </files>
