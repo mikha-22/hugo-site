@@ -4,7 +4,7 @@ This repository contains the source code for my personal blog, which is built wi
 
 The live site can be viewed at: **https://hugo.milenika.dev**
 
-## CI/CD Workflow 🚀
+## CI/CD Workflow 
 
 This repository features a fully automated CI/CD pipeline using **GitHub Actions**. When a change is pushed to the `main` branch, the following process is triggered:
 
@@ -14,7 +14,7 @@ This repository features a fully automated CI/CD pipeline using **GitHub Actions
 
 The static content is served to the public by an **NGINX** server (running in Kubernetes) that is configured to act as a reverse proxy for the MinIO bucket.
 
-## Local Development ✍️
+## Local Development 
 
 To write new posts or test changes locally, you can run the Hugo development server on your machine.
 
