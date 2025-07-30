@@ -1,6 +1,6 @@
 repomix-output.xml
 # Hugo build output
-themes
+
 public/
 resources/_gen/
 .hugo_build.lock
@@ -9,8 +9,6 @@ resources/_gen/
 .DS_Store
 Thumbs.db
 
-# Hugo themes (if using git submodules, you might want to track these)
-# themes/
 
 # Hugo cache
 /.cache/

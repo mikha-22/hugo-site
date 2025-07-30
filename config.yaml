@@ -51,9 +51,9 @@ params:
 
   # Home page settings
   homeInfoParams:
-    Title: "Welcome to Mikha's Homelab 🏠"
+    Title: "Welcome to Milenika's Homelab"
     Content: >
-      A DevOps engineer's journey with Kubernetes, GitOps, and homelab automation.
+      Aspiring DevOps engineer's journey with Kubernetes, GitOps, and homelab automation.
       Currently running a complete LGTM observability stack with Hugo static site hosting.
 
   # Social icons
