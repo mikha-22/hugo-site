@@ -11,7 +11,7 @@ I'm a DevOps engineer passionate about:
 - GitOps and infrastructure as code
 - Homelab automation
 - Open source technologies
-
+- .
 ## My Homelab
 
 Current setup includes:
