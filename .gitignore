@@ -1,5 +1,6 @@
 repomix-output.xml
 # Hugo build output
+.repomix.json
 
 public/
 resources/_gen/
