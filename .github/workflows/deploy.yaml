@@ -18,8 +18,8 @@ jobs:
     - name: Checkout Hugo repository
       uses: actions/checkout@v4
       with:
-        submodules: recursive  # For Hugo themes as submodules
-        fetch-depth: 0        # Fetch full history for .GitInfo and .Lastmod
+        submodules: recursive
+        fetch-depth: 0
 
     - name: Initialize and update submodules
       run: |
@@ -31,17 +31,15 @@ jobs:
       uses: peaceiris/actions-hugo@v3
       with:
         hugo-version: 'latest'
-        extended: true  # Use Hugo extended version for SCSS support
+        extended: true
 
     - name: Build Hugo site
       run: |
         hugo --minify --gc --cleanDestinationDir
         
-        # Verify build output
         echo "Build completed. Files in public/:"
         ls -la public/
-        
-        # Ensure index.html exists
+   
         if [ ! -f public/index.html ]; then
           echo "ERROR: index.html not found!"
           exit 1
