@@ -1,0 +1,61 @@
+OpenTelemetry Missing Root Spans - Root Cause Analysis & Resolution
+Problem Summary
+The OpenTelemetry demo was generating complete distributed traces for backend microservices, but all traces showed <root span not yet received> in Tempo, preventing proper trace visualization and request flow analysis.
+Root Cause Analysis
+The Issue: Misconfigured Frontend-Proxy
+The missing root spans were caused by a configuration mismatch in the frontend-proxy (Envoy) component:
+
+Demo's built-in collector was disabled to use a separate daemonset collector
+Frontend-proxy's environment variables still pointed to the disabled collector (otel-collector)
+Envoy configuration template used the wrong collector endpoint, causing:
+
+Root spans to be generated but never sent to the active collector
+Child spans from other services reaching the collector normally
+Tempo receiving incomplete trace trees without root context
+
+
+
+Why Frontend-Proxy Matters
+Browser → Frontend-Proxy (Envoy) → Frontend → Backend Services
+   ↓              ↓                     ↓          ↓
+HTTP Req      ROOT SPAN           Child Spans  Child Spans
+The frontend-proxy serves as the entry point for all external traffic and generates the initial trace context that all other services inherit. Without proper root span collection, trace correlation was broken.
+Investigation Process
+
+Analyzed trace data - Found missing root span ID bcb09511023eeb38
+Examined frontend-proxy configuration - Discovered wrong Envoy routing (to www.envoyproxy.io)
+Identified environment variable conflicts - OTEL_COLLECTOR_NAME pointing to disabled collector
+Located Helm chart defaults - Found global environment variable overrides needed
+
+Solution
+Configuration Fix
+Modified apps/opentelemetry-demo/values.yaml to override the default collector configuration globally:
+yamldefault:
+  envOverrides:
+    - name: OTEL_COLLECTOR_NAME
+      value: "otel-collector-opentelemetry-collector.monitoring.svc.cluster.local"
+Why This Worked
+
+Global override fixed the frontend-proxy's Envoy collector configuration
+All demo components now correctly point to the daemonset collector
+Frontend-proxy generates and sends root spans to the active collector
+Complete trace trees are now received by Tempo
+
+Result
+Root spans now appear in Tempo traces
+Complete request flow visualization from ingress through microservices
+Proper trace correlation enabling effective distributed system debugging
+Full LGTM observability stack operational
+Key Learnings
+
+Envoy configuration relies on environment variables for collector endpoints
+Helm chart global defaults need proper overriding when using external collectors
+Frontend-proxy is critical for trace hierarchy in microservices architectures
+Missing root spans often indicate ingress/gateway tracing configuration issues
+
+Prevention
+
+Always verify ingress component tracing configuration when deploying custom collectors
+Use global environment variable overrides for consistent collector endpoint configuration
+Test trace completeness from entry point through the entire service mesh
+
