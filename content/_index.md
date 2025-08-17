@@ -5,7 +5,7 @@ draft: false
 description: "A technical blog documenting the creation and automation of a modern homelab using Kubernetes, GitOps, and Infrastructure as Code."
 ---
 
-# TEST CHANGE A Journey in Automation
+# A Journey in Automation
 
 This site serves as the digital logbook for my personal cloud infrastructure. Here, I document the process of building a fully automated, production-grade homelab from the ground up. The core philosophy is to manage everything as code, from the virtualized infrastructure to the applications and this very website.
 
